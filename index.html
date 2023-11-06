@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>로봇앤컴</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    section {
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3em;
+    }
+  </style>
+</head>
+
+<body>
+  <section id="section1">
+    <div id="text" style="
+      width: 100vw;
+      height: 100vh;
+      position: absolute  ;
+      top: 0;
+      left: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    ">
+      <div style="position: relative; display: flex; justify-content: center">
+        <h1>ROBOTNCOM</h1>
+        <p id="menu" style="position: absolute; bottom: -30px; font-size: 18px"></p>
+      </div>
+    </div>
+    <div>
+  </section>
+  <section id="section2">
+    <h1>제품 소개 페이지</h1>
+  </section>
+  <section id="section3">
+    <h1>서비스 소개 페이지</h1>
+  </section>
+  <section id="section4">
+    <h1>고객 지원 페이지</h1>
+  </section>
+  <!-- Add more sections as needed -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
+  <script>
+    // scene, camera, renderer 설정
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(
+      75,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+    );
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0xffffff);
+    document.getElementById("section1").appendChild(renderer.domElement);
+
+    function onWindowResize() {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+
+      renderer.setSize(width, height);
+    }
+
+    window.addEventListener("resize", onWindowResize, false);
+
+    // 그리드 추가
+    const gridHelper = new THREE.GridHelper(960, 60, 0x888888, 0x888888);
+    gridHelper.rotation.x = Math.PI / 2;
+    scene.add(gridHelper);
+
+    // 이미지 추가 함수
+    function loadTextureAndCreateObjects(imageUrl, gridX, gridY, size, data) {
+      const textureLoader = new THREE.TextureLoader();
+      const texture = textureLoader.load(imageUrl);
+      texture.minFilter = THREE.LinearFilter;
+      const material = new THREE.MeshBasicMaterial({ map: texture });
+      const geometry = new THREE.PlaneGeometry(size, size);
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.position.x = gridX;
+      mesh.position.y = gridY;
+      mesh.userData = data;
+      scene.add(mesh);
+      return mesh;
+    }
+
+    // 이미지 추가
+    const imagesMeshes = [];
+    const imageSize = 16;
+    const images = [
+      {
+        url: "image1.png",
+        x: 2,
+        y: 2,
+        size: imageSize * 2,
+        data: { id: 0, title: "과거", bgUrl: "image1.png" },
+      },
+      {
+        url: "robotncom.png",
+        x: 0,
+        y: 0,
+        size: imageSize * 1,
+        data: { id: 0, title: "로봇앤컴", bgUrl: "robotncom.png" },
+      },
+      {
+        url: "image2.png",
+        x: -2,
+        y: -2,
+        size: imageSize * 2,
+        data: { id: 1, title: "미래", bgUrl: "image2.png" },
+      },
+      {
+        url: "image3.png",
+        x: -2,
+        y: 3,
+        size: imageSize,
+        data: { id: 2, title: "현재", bgUrl: "image3.png" },
+      },
+      {
+        url: "image4.png",
+        x: -7,
+        y: 5,
+        size: imageSize,
+        data: { id: 2, title: "현재", bgUrl: "image4.png" },
+      },
+    ];
+
+    for (let i = 0; i < images.length; i++) {
+      const { url, x, y, size, data } = images[i];
+      const imageMesh = loadTextureAndCreateObjects(
+        url,
+        (size / 2 + 16 * (Math.abs(x) - 1)) * Math.sign(x),
+        (size / 2 + 16 * (Math.abs(y) - 1)) * Math.sign(y),
+        size,
+        data
+      );
+      imagesMeshes.push(imageMesh);
+    }
+
+    // 마우스 움직임 설정
+    const smoothFactor = 0.02;
+    const maxMovement = 20;
+    let targetX = 0;
+    let targetY = 0;
+
+    // let hoverData = null;
+
+    function onMouseMove(event) {
+      const mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+      const mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+
+      targetX = mouseX * maxMovement;
+      targetY = mouseY * maxMovement;
+
+      const mouse = new THREE.Vector2();
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+      // hover 감지
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(mouse, camera);
+
+      const intersects = raycaster.intersectObjects(imagesMeshes, true);
+
+      if (intersects.length > 0) {
+        // hoverData = intersects[0].object.userData;
+        hoverEvent(intersects[0].object.userData);
+      } else {
+        hoverEvent(null);
+      }
+    }
+
+    window.addEventListener("mousemove", onMouseMove, false);
+
+    const planeGeometry = new THREE.PlaneGeometry(400, 400);
+    const textureLoader = new THREE.TextureLoader();
+    const texture = textureLoader.load("image1.png");
+    const planeMaterial = new THREE.MeshBasicMaterial({ map: texture });
+    const backgroundPlane = new THREE.Mesh(planeGeometry, planeMaterial);
+    backgroundPlane.position.z = -100;
+
+    let prevHoverDataId = null;
+    async function hoverEvent(hoverData) {
+      if (hoverData) {
+        if (hoverData.id !== prevHoverDataId) {
+          text.style.color = "#ffffff";
+          menu.textContent = hoverData.title;
+          const newTexture = await new THREE.TextureLoader().load(hoverData.bgUrl);
+          newTexture.minFilter = THREE.LinearFilter;
+          backgroundPlane.material.map = newTexture;
+          scene.add(backgroundPlane);
+          prevHoverDataId = hoverData.id;
+        }
+      } else {
+        text.style.color = "#000000";
+        menu.textContent = "";
+        scene.remove(backgroundPlane);
+        prevHoverDataId = null;
+      }
+    }
+
+    // 터치 이벤트 변수들 초기화
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    // 터치 이벤트 시작 지점을 저장
+    function onTouchStart(event) {
+      const touch = event.touches[0];
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+    }
+
+    // 터치 이벤트를 기반으로 카메라 위치를 조정
+    function onTouchMove(event) {
+      if (event.touches.length === 1) {
+        const touch = event.touches[0];
+        const deltaX = (touch.clientX - touchStartX) * smoothFactor;
+        const deltaY = (touch.clientY - touchStartY) * smoothFactor;
+        targetX -= deltaX;
+        targetY += deltaY;
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+      }
+    }
+
+    // 터치 이벤트 리스너 추가
+    window.addEventListener("touchstart", onTouchStart, false);
+    window.addEventListener("touchmove", onTouchMove, false);
+
+    function animate() {
+      // 마우스 이동
+      const deltaX = (targetX - camera.position.x) * smoothFactor;
+      const deltaY = (targetY - camera.position.y) * smoothFactor;
+      camera.position.x += deltaX;
+      camera.position.y += deltaY;
+
+      // hover 이벤트
+      // hoverEvent();
+
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+    }
+
+    camera.position.z = 100;
+
+    animate();
+  </script>
+  <script>
+    const sections = document.querySelectorAll('section');
+    let currentSection = 0;
+    let isScrolling = false;
+
+    function scrollToSection(index) {
+      isScrolling = true;
+      sections[index].scrollIntoView({ behavior: 'smooth' });
+      setTimeout(() => {
+        isScrolling = false;
+      }, 1000);
+    }
+
+    window.addEventListener('wheel', (e) => {
+  if (!isScrolling) {
+    if (e.deltaY > 0 && currentSection < sections.length - 1) {
+      currentSection++;
+      scrollToSection(currentSection);
+    } else if (e.deltaY < 0 && currentSection > 0) {
+      currentSection--;
+      scrollToSection(currentSection);
+    } else if (e.deltaY > 0 && currentSection === sections.length - 1) {
+      e.preventDefault();
+    }
+  }
+});
+
+    // Your Three.js functionality goes here for visualization and interactivity
+    // Rest of your existing Three.js code here
+  </script>
+</body>
+
+</html>

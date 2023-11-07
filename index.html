@@ -112,6 +112,7 @@
         size: imageSize * 2,
         data: { id: 1, title: "로봇앤컴", bgUrl: "robotncom.png" , url: "https://www.robotncom.com/index" },
       },
+
       {
         url: "platform.png",
         x: 3,
@@ -119,6 +120,7 @@
         size: imageSize * 2,
         data: { id: 5, title: "플랫폼", bgUrl: "platform.png" },
       },
+      
       {
         url: "taktaguri.png",
         x: 3,
@@ -187,14 +189,14 @@
         x: 0,
         y: -5,
         size: imageSize * 2,
-        data: { id: 7, title: "IT솔루션", bgUrl: "VoiceInfrastructure.png"  },
+        data: { id: 10, title: "IT솔루션", bgUrl: "VoiceInfrastructure.png"  },
       },
       {
         url: "communication.png",
         x: 0,
         y: 5,
         size: imageSize * 2,
-        data: { id: 7, title: "정보통신공사업", bgUrl: "communication.png"  },
+        data: { id: 11, title: "정보통신공사업", bgUrl: "communication.png"  },
       },
     ];
 
@@ -209,6 +211,66 @@
       );
       imagesMeshes.push(imageMesh);
     }
+// 이미지를 표시하고 이미지 간의 연결선을 그리는 함수
+function createLineBetweenImages(image1, image2) {
+        const material = new THREE.LineBasicMaterial({ color: 0x0000ff }); // 선의 색 및 스타일을 지정
+        const points = [];
+
+        // 두 이미지의 중심 좌표를 계산
+        const position1 = image1.position.clone().add(new THREE.Vector3(0, 0, 0)); // image1의 중심 좌표
+        const position2 = image2.position.clone().add(new THREE.Vector3(0, 0, 0)); // image2의 중심 좌표
+
+        // 선을 그릴 좌표를 포인트 배열에 추가
+        points.push(position1, position2);
+
+        // 선을 포인트 배열을 사용하여 생성
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        const line = new THREE.Line(geometry, material);
+
+        // 선을 scene에 추가
+        scene.add(line);
+    }
+
+    function connectCentralImage() {
+    const centralIndex = Math.floor(imagesMeshes.length / 2); // 중앙 이미지의 인덱스
+    const centralImage = imagesMeshes[centralIndex]; // 중앙 이미지
+
+    for (let i = 0; i < imagesMeshes.length; i++) {
+        if (i !== centralIndex) {
+            const image = imagesMeshes[i]; // 다른 이미지들
+
+            // 중앙 이미지와 다른 이미지 사이에 선을 생성
+            createLineBetweenImages(centralImage, image);
+        }
+    }
+}
+
+function createImagesAndConnectLines() {
+    const centerImage = images.find(image => image.data.id === 1); // ID가 1인 이미지 찾기
+
+    for (let i = 0; i < images.length; i++) {
+        const { url, x, y, size, data } = images[i];
+        const imageMesh = loadTextureAndCreateObjects(
+            url,
+            (size / 2 + 16 * (Math.abs(x) - 1)) * Math.sign(x),
+            (size / 2 + 16 * (Math.abs(y) - 1)) * Math.sign(y),
+            size,
+            data
+        );
+        imagesMeshes.push(imageMesh);
+
+        if (data.id === 1 && i !== images.indexOf(centerImage)) { // ID가 1이고 중앙 이미지가 아닌 경우에만 연결
+            createLineBetweenImages(imagesMeshes[images.indexOf(centerImage)], imageMesh);
+        }
+    }
+
+
+        // 중앙 이미지를 기준으로 선을 연결
+        connectCentralImage();
+    }
+
+    // 이미지 및 연결선 생성 실행
+    createImagesAndConnectLines();
 
     // 마우스 움직임 설정
     const smoothFactor = 0.02;

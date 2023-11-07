@@ -37,20 +37,20 @@
       align-items: center;
     ">
       <div style="position: relative; display: flex; justify-content: center">
-        <h1>ROBOTNCOM</h1>
+        <h2 style="user-select: none; ">ROBOTNCOM</h2>
         <p id="menu" style="position: absolute; bottom: -30px; font-size: 18px"></p>
       </div>
     </div>
     <div>
   </section>
   <section id="section2">
-    <h1>제품 소개 페이지</h1>
+    <h2>제품 소개 페이지</h2>
   </section>
   <section id="section3">
-    <h1>서비스 소개 페이지</h1>
+    <h2>서비스 소개 페이지</h2>
   </section>
   <section id="section4">
-    <h1>고객 지원 페이지</h1>
+    <h2>고객 지원 페이지</h2>
   </section>
   <!-- Add more sections as needed -->
 
@@ -100,45 +100,101 @@
       scene.add(mesh);
       return mesh;
     }
-
+    
     // 이미지 추가
     const imagesMeshes = [];
     const imageSize = 16;
     const images = [
       {
-        url: "image1.png",
-        x: 2,
-        y: 2,
-        size: imageSize * 2,
-        data: { id: 0, title: "과거", bgUrl: "image1.png" },
-      },
-      {
         url: "robotncom.png",
         x: 0,
         y: 0,
-        size: imageSize * 1,
-        data: { id: 0, title: "로봇앤컴", bgUrl: "robotncom.png" },
-      },
-      {
-        url: "image2.png",
-        x: -2,
-        y: -2,
         size: imageSize * 2,
-        data: { id: 1, title: "미래", bgUrl: "image2.png" },
+        data: { id: 1, title: "로봇앤컴", bgUrl: "robotncom.png" , url: "https://www.robotncom.com/index" },
       },
       {
-        url: "image3.png",
-        x: -2,
+        url: "platform.png",
+        x: 3,
         y: 3,
-        size: imageSize,
-        data: { id: 2, title: "현재", bgUrl: "image3.png" },
+        size: imageSize * 2,
+        data: { id: 5, title: "플랫폼", bgUrl: "platform.png" },
       },
       {
-        url: "image4.png",
-        x: -7,
+        url: "taktaguri.png",
+        x: 3,
+        y: 5,
+        size: imageSize ,
+        data: { id: 0, title: "딱따구리", bgUrl: "taktaguri.png" , url: "https://taktaguri.com/" },
+      },
+      {
+        url: "nolga.png",
+        x: 5,
+        y: 5,
+        size: imageSize ,
+        data: { id: 2, title: "놀가", bgUrl: "nolga.png" , url: "https://nolga.biz/" },
+      },
+      {
+        url: "failertalk.png",
+        x: 4,
         y: 5,
         size: imageSize,
-        data: { id: 2, title: "현재", bgUrl: "image4.png" },
+        data: { id: 3, title: "페일러톡", bgUrl: "failertalk.png" , url: "https://failertalk.com/" },
+      },
+      {
+        url: "naafaa.png",
+        x: 5,
+        y: 4,
+        size: imageSize,
+        data: { id: 4, title: "나아파", bgUrl: "naafaa.png" , url: "https://naafaa.co.kr/" },
+      },
+      {
+        url: "moonjapay.png",
+        x: 5,
+        y: 3,
+        size: imageSize,
+        data: { id: 5, title: "문자페이", bgUrl: "moonjapay.png" , url: "https://moonjapay.co.kr/" },
+      },
+      {
+        url: "computer.png",
+        x: -5,
+        y: -3,
+        size: imageSize * 2,
+        data: { id: 6, title: "컴퓨터", bgUrl: "computer.png"  },
+      },
+      {
+        url: "ITSolution.png",
+        x: -3,
+        y: 0,
+        size: imageSize * 2,
+        data: { id: 7, title: "IT솔루션", bgUrl: "ITSolution.png"  },
+      },
+      {
+        url: "networkITSolution.png",
+        x: -4,
+        y: 4,
+        size: imageSize * 2,
+        data: { id: 8, title: "networkITSolution", bgUrl: "networkITSolution.png"  },
+      },
+      {
+        url: "Serversecurity.png",
+        x: 3,
+        y: -1,
+        size: imageSize * 2,
+        data: { id: 9, title: "서버 솔루션", bgUrl: "Serversecurity.png"  },
+      },
+      {
+        url: "VoiceInfrastructure.png",
+        x: 0,
+        y: -5,
+        size: imageSize * 2,
+        data: { id: 7, title: "IT솔루션", bgUrl: "VoiceInfrastructure.png"  },
+      },
+      {
+        url: "communication.png",
+        x: 0,
+        y: 5,
+        size: imageSize * 2,
+        data: { id: 7, title: "정보통신공사업", bgUrl: "communication.png"  },
       },
     ];
 
@@ -177,7 +233,8 @@
       const raycaster = new THREE.Raycaster();
       raycaster.setFromCamera(mouse, camera);
 
-      const intersects = raycaster.intersectObjects(imagesMeshes, true);
+      // const intersects = raycaster.intersectObjects(imagesMeshes, true);
+      const intersects = raycaster.intersectObjects(true);
 
       if (intersects.length > 0) {
         // hoverData = intersects[0].object.userData;
@@ -186,7 +243,7 @@
         hoverEvent(null);
       }
     }
-
+    
     window.addEventListener("mousemove", onMouseMove, false);
 
     const planeGeometry = new THREE.PlaneGeometry(400, 400);
@@ -215,6 +272,29 @@
         prevHoverDataId = null;
       }
     }
+    // 클릭 이벤트 추가
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    function onDocumentClick(event) {
+      event.preventDefault();
+
+      const canvasBounds = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((event.clientX - canvasBounds.left) / canvasBounds.width) * 2 - 1;
+      mouse.y = -((event.clientY - canvasBounds.top) / canvasBounds.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(scene.children);
+
+      if (intersects.length > 0) {
+        const object = intersects[0].object;
+        if (object.userData && object.userData.url) {
+          window.open(object.userData.url, "_blank");
+        }
+      }
+    }
+
+    document.addEventListener("click", onDocumentClick);
 
     // 터치 이벤트 변수들 초기화
     let touchStartX = 0;
